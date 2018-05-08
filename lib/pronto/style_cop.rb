@@ -36,7 +36,7 @@ module Pronto
       path = line.patch.delta.new_file[:path]
       level = level(violation)
 
-      Message.new(path, line, level, violation.message, nil, self.class)
+      Message.new(path, line, level, "[#{violation.rule_id}] #{violation.message}", nil, self.class)
     end
 
     def level(_violation)

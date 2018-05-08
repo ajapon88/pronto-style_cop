@@ -5,7 +5,7 @@ require 'pronto/style_cop/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'pronto-style_cop'
-  spec.version       = Pronto::StyleCop::VERSION
+  spec.version       = Pronto::StyleCopVersion::VERSION
   spec.authors       = ['ajapon88']
   spec.email         = ['ajapon88@gmail.com']
 

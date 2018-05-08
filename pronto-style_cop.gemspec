@@ -9,9 +9,9 @@ Gem::Specification.new do |spec|
   spec.authors       = ['ajapon88']
   spec.email         = ['ajapon88@gmail.com']
 
-  spec.summary       = 'TODO: Write a short summary, because RubyGems requires one.'
-  spec.description   = 'TODO: Write a longer description or delete this line.'
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.summary       = 'Pronto runner for StyleCop, csharp code analyzer'
+  spec.description   = 'Pronto runner for StyleCop, csharp code analyzer'
+  spec.homepage      = 'http://github.com/ajapon88/pronto-style_cop'
   spec.license       = 'MIT'
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'

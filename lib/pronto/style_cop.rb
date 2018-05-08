@@ -27,7 +27,7 @@ module Pronto
 
       violations.sort.map do |violation|
         patch.added_lines
-          .select { |line| line.new_lineno == violation.line_number.to_i }
+          .select { |line| line.new_lineno == violation.line_number }
           .map { |line| new_message(violation, line) }
       end
     end

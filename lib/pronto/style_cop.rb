@@ -1,4 +1,4 @@
-require "pronto/style_cop/version"
+require 'pronto/style_cop/version'
 
 module Pronto
   module StyleCop

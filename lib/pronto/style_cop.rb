@@ -1,5 +1,5 @@
 require 'pronto/style_cop/version'
-require 'pronto/style_cop/style_cop_config'
+require 'pronto/style_cop/config'
 require 'pronto'
 require 'style_cop'
 

@@ -1,9 +1,15 @@
 require 'pronto/style_cop/version'
+require 'pronto/style_cop/style_cop_config'
 require 'pronto'
 require 'style_cop'
 
 module Pronto
   class StyleCop < Runner
+    def initialize(patches, commit = nil)
+      super
+      @config.extend(StyleCopConfig)
+    end
+
     def run
       return [] unless @patches
 
@@ -14,12 +20,7 @@ module Pronto
 
     def valid_patch?(patch)
       return false unless patch.additions > 0
-
-      path = patch.new_file_full_path
-
-      # TODO: include/exclude file
-
-      csharp_file?(path)
+      csharp_file?(patch.new_file_full_path)
     end
 
     def inspect(patch)
@@ -57,13 +58,19 @@ module Pronto
       File.extname(path) == '.cs'
     end
 
-    def config_file
-      ENV.include?('STYLE_COP_CONFIG') ? ENV['STYLE_COP_CONFIG'] : nil
+    def settings
+      ENV.fetch('STYLE_COP_SETTINGS', nil)
+    end
+
+    def definitions
+      @config.style_cop_definitions
     end
 
     def run_stylecop(patch)
-      escaped_file_path = Shellwords.escape(patch.new_file_full_path.to_s)
-      ::StyleCop.stylecop(file: escaped_file_path, settings: config_file)
+      path = patch.new_file_full_path.to_s
+      definitions.each_with_object([]) do |definition, violations|
+        violations.concat(::StyleCop.stylecop(file: path, settings: settings, flags: definition))
+      end.uniq
     end
   end
 end

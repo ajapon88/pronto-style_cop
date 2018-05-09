@@ -58,14 +58,12 @@ module Pronto
     end
 
     def config_file
-      'Settings.StyleCop'
+      ENV.include?('STYLE_COP_CONFIG') ? ENV['STYLE_COP_CONFIG'] : nil
     end
 
     def run_stylecop(patch)
-      Dir.chdir(git_repo_path) do
-        escaped_file_path = Shellwords.escape(patch.new_file_full_path.to_s)
-        ::StyleCop.stylecop(file: escaped_file_path, settings: config_file)
-      end
+      escaped_file_path = Shellwords.escape(patch.new_file_full_path.to_s)
+      ::StyleCop.stylecop(file: escaped_file_path, settings: config_file)
     end
   end
 end

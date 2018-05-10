@@ -58,7 +58,7 @@ module Pronto
     end
 
     def settings
-      settings = ENV.fetch('STYLE_COP_SETTINGS', nil)
+      settings = ENV.fetch('STYLECOP_SETTINGS', nil)
       settings = './Settings.StyleCop' if settings.nil? && File.exist?('./Settings.StyleCop')
       settings
     end

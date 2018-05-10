@@ -22,3 +22,14 @@ $ cp ./bin/Debug/* /usr/local/opt/StyleCopCLI/
 $ printf '%s\n%s' '#!/bin/bash' 'exec $(which mono) /usr/local/opt/StyleCopCLI/StyleCopCLI.exe "$@"' > /usr/local/bin/StyleCopCLI
 $ chmod a+x /usr/local/bin/StyleCopCLI
 ```
+
+## Configuration of pronto-style_cop
+Example configuration to call custom style_cop define symbol option:
+```
+# .pronto.yml
+style_cop:
+  definitions:
+    - DEBUG
+    - RELEASE
+    - [DEBUG, SYMBOL]
+```

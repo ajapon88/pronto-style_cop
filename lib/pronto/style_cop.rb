@@ -1,7 +1,6 @@
 require 'pronto/style_cop/version'
 require 'pronto/style_cop/config'
 require 'pronto'
-require 'style_cop'
 
 module Pronto
   class StyleCop < Runner
@@ -24,24 +23,24 @@ module Pronto
     end
 
     def inspect(patch)
-      violations = run_stylecop(patch)
+      violations = []
+      definitions.each do |definition|
+        v = run_stylecop(patch, definition)
+        violations.concat(v)
+      end
 
-      violations.sort.map do |violation|
+      violations
+        .uniq(&:to_s)
+        .map do |violation|
         patch.added_lines
-          .select { |line| line.new_lineno == violation.line_number }
+          .select { |line| line.new_lineno == violation[:line_number] }
           .map { |line| new_message(violation, line) }
       end
     end
 
     def new_message(violation, line)
       path = line.patch.delta.new_file[:path]
-      level = level(violation)
-
-      Message.new(path, line, level, "[#{violation.rule_id}] #{violation.message}", nil, self.class)
-    end
-
-    def level(_violation)
-      :warning
+      Message.new(path, line, :warning, violation[:message], nil, self.class)
     end
 
     private
@@ -59,18 +58,44 @@ module Pronto
     end
 
     def settings
-      ENV.fetch('STYLE_COP_SETTINGS', nil)
+      settings = ENV.fetch('STYLE_COP_SETTINGS', nil)
+      settings = './Settings.StyleCop' if settings.nil? && File.exist?('./Settings.StyleCop')
+      settings
     end
 
     def definitions
       @config.style_cop_definitions
     end
 
-    def run_stylecop(patch)
-      path = patch.new_file_full_path.to_s
-      definitions.each_with_object([]) do |definition, violations|
-        violations.concat(::StyleCop.stylecop(file: path, settings: settings, flags: definition))
-      end.uniq
+    def run_stylecop(patch, definition)
+      Dir.chdir(git_repo_path) do
+        Tempfile.create do |f|
+          file_path = patch.new_file_full_path.to_s
+          args = []
+          args.push("-set '#{settings}'") unless settings.nil?
+          args.push("-flags '#{definition.join(',')}'")
+          args.push("-cs '#{file_path}'")
+          command = "StyleCopCLI #{args.join(' ')}"
+          ret = `#{command} -out '#{f.path}'`
+          status = $?
+          raise ret unless status.success? || status.exitstatus == 2
+          parse_stylecop_violation(f.path)
+        end
+      end
+    end
+
+    def parse_stylecop_violation(violation_file)
+      File.open(violation_file) do |f|
+        doc = REXML::Document.new(f)
+        violations = []
+        doc.elements.each('StyleCopViolations/Violation') do |violation|
+          attributes = violation.attributes
+          line_number = attributes['LineNumber'].to_i
+          message = "[#{attributes['RuleId']}] #{violation.text.strip}"
+          violations.push(line_number: line_number, message: message)
+        end
+        violations
+      end
     end
   end
 end

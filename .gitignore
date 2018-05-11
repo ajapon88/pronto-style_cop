@@ -5,3 +5,7 @@ pkg/*
 Gemfile.lock
 coverage
 vendor/bundle
+spec/reports
+
+# rspec failure tracking
+.rspec_status

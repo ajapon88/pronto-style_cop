@@ -15,5 +15,13 @@ module Pronto
         it { should == [] }
       end
     end
+
+    describe '#environment' do
+      context 'from env variable' do
+        before { stub_const('ENV', 'STYLECOP_SETTINGS' => 'Settings.StyleCop') }
+        subject { style_cop.send(:settings) }
+        it { should == 'Settings.StyleCop' }
+      end
+    end
   end
 end

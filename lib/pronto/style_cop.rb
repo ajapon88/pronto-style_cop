@@ -74,14 +74,19 @@ module Pronto
       Dir.chdir(git_repo_path) do
         Tempfile.create do |f|
           file_path = patch.new_file_full_path.to_s
-          opt = []
-          opt.push("-set '#{settings}'") unless settings.nil?
-          opt.push("-flags '#{definition.join(',')}'") unless definition.nil? || definition.empty?
+          opt = stylecop_options(definition)
           ret = `'#{STYLECOP_COMMAND}' #{opt.join(' ')} -cs '#{file_path}' -out '#{f.path}'`
           raise ret unless stylecop_success?($?)
           parse_stylecop_violation(f.path)
         end
       end
+    end
+
+    def stylecop_options(definition)
+      opt = []
+      opt.push("-set '#{settings}'") unless settings.nil?
+      opt.push("-flags '#{definition.join(',')}'") unless definition.nil? || definition.empty?
+      opt
     end
 
     def stylecop_success?(status)

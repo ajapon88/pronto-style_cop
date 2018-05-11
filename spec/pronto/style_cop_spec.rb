@@ -16,11 +16,25 @@ module Pronto
       end
     end
 
-    describe '#environment' do
-      context 'from env variable' do
-        before { stub_const('ENV', 'STYLECOP_SETTINGS' => 'Settings.StyleCop') }
-        subject { style_cop.send(:settings) }
-        it { should == 'Settings.StyleCop' }
+    describe '#options' do
+      let(:definition) { [] }
+      let(:stylecop_settings) { nil }
+      subject { style_cop.send(:stylecop_options, definition) }
+      before { stub_const('ENV', 'STYLECOP_SETTINGS' => stylecop_settings) }
+
+      context 'option definition to flags' do
+        let(:definition) { ['DEBUG'] }
+        it { should == ["-flags 'DEBUG'"] }
+      end
+
+      context 'option array definition to flags' do
+        let(:definition) { %w[DEBUG RELEASE] }
+        it { should == ["-flags 'DEBUG,RELEASE'"] }
+      end
+
+      context 'from config file env variable' do
+        let(:stylecop_settings) { 'Settings.StyleCop' }
+        it { should == ["-set '#{stylecop_settings}'"] }
       end
     end
   end

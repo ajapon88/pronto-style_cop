@@ -9,13 +9,14 @@ You can also specify a custom `Settings.StyleCop` location with the environment 
 
 ## Installation StyleCopCLI
 
-1. Clone [stylecopcli](https://github.com/bbadjari/stylecopcli.git)
-2. Build stylecopcli
+1. Build stylecopcli
 ```
+$ git clone https://github.com/bbadjari/stylecopcli.git
 $ cd stylecopcli
 $ msbuild
 ```
-3. On the command line:
+
+2. On the command line:
 ```
 $ mkdir -p /usr/local/opt/stylecopcli
 $ cp ./bin/Debug/* /usr/local/opt/StyleCopCLI/
@@ -31,5 +32,5 @@ style_cop:
   definitions:
     - DEBUG
     - RELEASE
-    - [DEBUG, SYMBOL]
+    - [SYMBOL1, SYMBOL2]
 ```

@@ -73,7 +73,7 @@ module Pronto
           file_path = patch.new_file_full_path.to_s
           args = []
           args.push("-set '#{settings}'") unless settings.nil?
-          args.push("-flags '#{definition.join(',')}'")
+          args.push("-flags '#{definition.join(',')}'") unless definition.nil? || definition.empty?
           args.push("-cs '#{file_path}'")
           command = "StyleCopCLI #{args.join(' ')}"
           ret = `#{command} -out '#{f.path}'`

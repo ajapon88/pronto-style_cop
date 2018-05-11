@@ -1,9 +1,12 @@
 require 'pronto/style_cop/version'
 require 'pronto/style_cop/config'
 require 'pronto'
+require 'tempfile'
 
 module Pronto
   class StyleCop < Runner
+    STYLECOP_COMMAND = 'StyleCopCLI'.freeze
+
     def initialize(patches, commit = nil)
       super
       @config.extend(StyleCopConfig)
@@ -71,17 +74,23 @@ module Pronto
       Dir.chdir(git_repo_path) do
         Tempfile.create do |f|
           file_path = patch.new_file_full_path.to_s
-          args = []
-          args.push("-set '#{settings}'") unless settings.nil?
-          args.push("-flags '#{definition.join(',')}'") unless definition.nil? || definition.empty?
-          args.push("-cs '#{file_path}'")
-          command = "StyleCopCLI #{args.join(' ')}"
-          ret = `#{command} -out '#{f.path}'`
-          status = $?
-          raise ret unless status.success? || status.exitstatus == 2
+          opt = stylecop_options(definition)
+          ret = `'#{STYLECOP_COMMAND}' #{opt.join(' ')} -cs '#{file_path}' -out '#{f.path}'`
+          raise ret unless stylecop_success?($?)
           parse_stylecop_violation(f.path)
         end
       end
+    end
+
+    def stylecop_options(definition)
+      opt = []
+      opt.push("-set '#{settings}'") unless settings.nil?
+      opt.push("-flags '#{definition.join(',')}'") unless definition.nil? || definition.empty?
+      opt
+    end
+
+    def stylecop_success?(status)
+      status.success? || status.exitstatus == 2
     end
 
     def parse_stylecop_violation(violation_file)

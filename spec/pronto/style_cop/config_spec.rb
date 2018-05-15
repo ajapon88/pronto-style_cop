@@ -21,8 +21,8 @@ module Pronto
       end
 
       context 'definitions array symbol' do
-        let(:config_hash) { { 'style_cop' => { 'definitions' => ['DEBUG', %w[DEBUG SYMBOL]] } } }
-        it { should == [['DEBUG'], %w[DEBUG SYMBOL]] }
+        let(:config_hash) { { 'style_cop' => { 'definitions' => ['DEBUG', %w[SYMBOL1 SYMBOL2]] } } }
+        it { should == [['DEBUG'], %w[SYMBOL1 SYMBOL2]] }
       end
     end
 

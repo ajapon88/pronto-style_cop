@@ -61,13 +61,11 @@ module Pronto
     end
 
     def settings
-      settings = ENV.fetch('STYLECOP_SETTINGS', nil)
-      settings = './Settings.StyleCop' if settings.nil? && File.exist?('./Settings.StyleCop')
-      settings
+      @settings ||= ENV.fetch('STYLECOP_SETTINGS', nil) || (File.exist?('./Settings.StyleCop') ? './Settings.StyleCop' : nil)
     end
 
     def definitions
-      @config.style_cop_definitions
+      @definitions ||= @config.style_cop_definitions
     end
 
     def parallel

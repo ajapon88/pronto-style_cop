@@ -2,6 +2,7 @@ require 'pronto/style_cop/version'
 require 'pronto/style_cop/config'
 require 'pronto'
 require 'tempfile'
+require 'parallel'
 
 module Pronto
   class StyleCop < Runner
@@ -26,13 +27,12 @@ module Pronto
     end
 
     def inspect(patch)
-      violations = []
-      definitions.each do |definition|
-        v = run_stylecop(patch, definition)
-        violations.concat(v)
+      violations = Parallel.map(definitions, in_processes: parallel) do |definition|
+        run_stylecop(patch, definition)
       end
 
       violations
+        .flatten
         .uniq(&:to_s)
         .map do |violation|
         patch.added_lines
@@ -61,13 +61,15 @@ module Pronto
     end
 
     def settings
-      settings = ENV.fetch('STYLECOP_SETTINGS', nil)
-      settings = './Settings.StyleCop' if settings.nil? && File.exist?('./Settings.StyleCop')
-      settings
+      @settings ||= ENV.fetch('STYLECOP_SETTINGS', nil) || (File.exist?('./Settings.StyleCop') ? './Settings.StyleCop' : nil)
     end
 
     def definitions
-      @config.style_cop_definitions
+      @definitions ||= @config.style_cop_definitions
+    end
+
+    def parallel
+      @parallel ||= @config.style_cop_parallel
     end
 
     def run_stylecop(patch, definition)

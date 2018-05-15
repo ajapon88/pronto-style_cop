@@ -21,8 +21,25 @@ module Pronto
       end
 
       context 'definitions array symbol' do
-        let(:config_hash) { { 'style_cop' => { 'definitions' => ['DEBUG', %w[DEBUG SYMBOL]] } } }
-        it { should == [['DEBUG'], %w[DEBUG SYMBOL]] }
+        let(:config_hash) { { 'style_cop' => { 'definitions' => ['DEBUG', %w[SYMBOL1 SYMBOL2]] } } }
+        it { should == [['DEBUG'], %w[SYMBOL1 SYMBOL2]] }
+      end
+    end
+
+    describe '#parallel' do
+      subject { config.style_cop_parallel }
+      context 'parallel is none' do
+        it { should == 1 }
+      end
+
+      context 'parallel is nil' do
+        let(:config_hash) { { 'style_cop' => { 'parallel' => nil } } }
+        it { should == 1 }
+      end
+
+      context 'parallel is 4' do
+        let(:config_hash) { { 'style_cop' => { 'parallel' => 4 } } }
+        it { should == 4 }
       end
     end
   end

@@ -33,4 +33,5 @@ style_cop:
     - DEBUG
     - RELEASE
     - [SYMBOL1, SYMBOL2]
+  parallel: 4
 ```

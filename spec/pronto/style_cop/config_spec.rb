@@ -25,5 +25,22 @@ module Pronto
         it { should == [['DEBUG'], %w[DEBUG SYMBOL]] }
       end
     end
+
+    describe '#parallel' do
+      subject { config.style_cop_parallel }
+      context 'parallel is none' do
+        it { should == 1 }
+      end
+
+      context 'parallel is nil' do
+        let(:config_hash) { { 'style_cop' => { 'parallel' => nil } } }
+        it { should == 1 }
+      end
+
+      context 'parallel is 4' do
+        let(:config_hash) { { 'style_cop' => { 'parallel' => 4 } } }
+        it { should == 4 }
+      end
+    end
   end
 end

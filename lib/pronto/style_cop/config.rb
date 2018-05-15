@@ -10,5 +10,9 @@ module Pronto
       definitions
         .collect { |definition| definition.instance_of?(Array) ? definition : [definition] }
     end
+
+    def style_cop_parallel
+      style_cop.fetch('parallel', 1) || 1
+    end
   end
 end

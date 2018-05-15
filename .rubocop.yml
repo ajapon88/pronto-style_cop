@@ -28,6 +28,8 @@ Metrics/ParameterLists:
 
 Metrics/BlockLength:
   Max: 30
+  Exclude:
+    - spec/**/*
 
 Style/SpecialGlobalVars:
   Enabled: false

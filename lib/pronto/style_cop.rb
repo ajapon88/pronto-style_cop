@@ -3,6 +3,7 @@ require 'pronto/style_cop/config'
 require 'pronto'
 require 'tempfile'
 require 'parallel'
+require 'set'
 
 module Pronto
   class StyleCop < Runner
@@ -27,13 +28,8 @@ module Pronto
     end
 
     def inspect(patch)
-      violations = Parallel.map(definitions, in_processes: parallel) do |definition|
-        run_stylecop(patch, definition)
-      end
-
-      violations
-        .flatten
-        .uniq(&:to_s)
+      Parallel.map(definitions, in_processes: parallel) { |definition| run_stylecop(patch, definition) }
+        .each_with_object(Set.new) { |violations, result| result.merge(violations) }
         .map do |violation|
         patch.added_lines
           .select { |line| line.new_lineno == violation[:line_number] }
@@ -43,7 +39,7 @@ module Pronto
 
     def new_message(violation, line)
       path = line.patch.delta.new_file[:path]
-      Message.new(path, line, :warning, violation[:message], nil, self.class)
+      Message.new(path, line, :warning, "[#{violation[:rule_id]}] #{violation[:message]}", nil, self.class)
     end
 
     private
@@ -96,17 +92,18 @@ module Pronto
     end
 
     def parse_stylecop_violation(violation_file)
+      violations = Set.new
       File.open(violation_file) do |f|
         doc = REXML::Document.new(f)
-        violations = []
         doc.elements.each('StyleCopViolations/Violation') do |violation|
           attributes = violation.attributes
           line_number = attributes['LineNumber'].to_i
-          message = "[#{attributes['RuleId']}] #{violation.text.strip}"
-          violations.push(line_number: line_number, message: message)
+          rule_id = attributes['RuleId']
+          message = violation.text.strip
+          violations.add(line_number: line_number, rule_id: rule_id, message: message)
         end
-        violations
       end
+      violations
     end
   end
 end

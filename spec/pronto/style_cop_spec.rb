@@ -37,5 +37,13 @@ module Pronto
         it { should == ["-set '#{stylecop_settings}'"] }
       end
     end
+    describe '#parallel' do
+      subject { style_cop.send(:parallel) }
+
+      context 'parallel negative' do
+        before { stub_const('ENV', 'PRONTO_STYLECOP_PARALLEL' => '-1') }
+        it { is_expected.to be nil }
+      end
+    end
   end
 end

@@ -12,7 +12,12 @@ module Pronto
     end
 
     def style_cop_parallel
-      style_cop.fetch('parallel', 1) || 1
+      if ENV['PRONTO_STYLECOP_PARALLEL'].nil?
+        style_cop.fetch('parallel', 1)
+      else
+        return nil if ENV['PRONTO_STYLECOP_PARALLEL'].empty?
+        ENV['PRONTO_STYLECOP_PARALLEL'].to_i
+      end
     end
   end
 end

@@ -27,6 +27,7 @@ module Pronto
     end
 
     describe '#parallel' do
+      before { stub_const('ENV', 'PRONTO_STYLECOP_PARALLEL' => nil) }
       subject { config.style_cop_parallel }
       context 'parallel is none' do
         it { should == 1 }
@@ -34,12 +35,27 @@ module Pronto
 
       context 'parallel is nil' do
         let(:config_hash) { { 'style_cop' => { 'parallel' => nil } } }
-        it { should == 1 }
+        it { is_expected.to be nil }
       end
 
       context 'parallel is 4' do
         let(:config_hash) { { 'style_cop' => { 'parallel' => 4 } } }
         it { should == 4 }
+      end
+
+      context 'parallel env empty' do
+        before { stub_const('ENV', 'PRONTO_STYLECOP_PARALLEL' => '') }
+        it { is_expected.to be nil }
+      end
+
+      context 'parallel env 1' do
+        before { stub_const('ENV', 'PRONTO_STYLECOP_PARALLEL' => '1') }
+        it { should == 1 }
+      end
+
+      context 'parallel env negative' do
+        before { stub_const('ENV', 'PRONTO_STYLECOP_PARALLEL' => '-1') }
+        it { should == -1 }
       end
     end
   end

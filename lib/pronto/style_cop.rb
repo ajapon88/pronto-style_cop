@@ -57,7 +57,14 @@ module Pronto
     end
 
     def settings
-      @settings ||= ENV.fetch('STYLECOP_SETTINGS', nil) || (File.exist?('./Settings.StyleCop') ? './Settings.StyleCop' : nil)
+      @settings ||= begin
+        puts "deprecation environment variable 'STYLECOP_SETTINGS'" if ENV.key?('STYLECOP_SETTINGS')
+
+        settigns = ENV.fetch('PRONTO_STYLECOP_SETTINGS', nil)
+        settigns = ENV.fetch('STYLECOP_SETTINGS', nil) if settigns.nil? # deprecation
+        settigns = './Settings.StyleCop' if settigns.nil? && File.exist?('./Settings.StyleCop')
+        settigns
+      end
     end
 
     def definitions

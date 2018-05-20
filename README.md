@@ -5,7 +5,7 @@ Pronto runner for StyleCop, csharp code analyzer. [What is Pronto?](https://gith
 ## Configuration
 
 Configuring StyleCop via Settings.StyleCop will work just fine with pronto-style_cop.
-You can also specify a custom `Settings.StyleCop` location with the environment variable `STYLECOP_SETTINGS`
+You can also specify a custom `Settings.StyleCop` location with the environment variable `PRONTO_STYLECOP_SETTINGS`
 
 ## Installation StyleCopCLI
 

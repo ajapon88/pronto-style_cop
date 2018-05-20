@@ -65,7 +65,11 @@ module Pronto
     end
 
     def parallel
-      @parallel ||= @config.style_cop_parallel
+      @parallel ||= begin
+        parallel = @config.style_cop_parallel
+        parallel = nil if parallel < 0
+        parallel
+      end
     end
 
     def run_stylecop(patch, definition)

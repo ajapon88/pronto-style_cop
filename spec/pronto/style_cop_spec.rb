@@ -41,7 +41,7 @@ module Pronto
       subject { style_cop.send(:parallel) }
 
       context 'parallel negative' do
-        before { stub_const('ENV', 'STYLECOP_PARALLEL' => '-1') }
+        before { stub_const('ENV', 'PRONTO_STYLECOP_PARALLEL' => '-1') }
         it { is_expected.to be nil }
       end
     end

@@ -18,9 +18,9 @@ module Pronto
 
     describe '#options' do
       let(:definition) { [] }
-      let(:stylecop_settings) { nil }
       subject { style_cop.send(:stylecop_options, definition) }
-      before { stub_const('ENV', 'STYLECOP_SETTINGS' => stylecop_settings) }
+      before { stub_const('ENV', 'STYLECOP_SETTINGS' => nil) }
+      before { stub_const('ENV', 'PRONTO_STYLECOP_SETTINGS' => nil) }
 
       context 'option definition to flags' do
         let(:definition) { ['DEBUG'] }
@@ -33,8 +33,19 @@ module Pronto
       end
 
       context 'from config file env variable' do
-        let(:stylecop_settings) { 'Settings.StyleCop' }
-        it { should == ["-set '#{stylecop_settings}'"] }
+        before { stub_const('ENV', 'STYLECOP_SETTINGS' => 'Settings.StyleCop') }
+        it { should == ["-set 'Settings.StyleCop'"] }
+      end
+
+      context 'from config file env variable' do
+        before { stub_const('ENV', 'PRONTO_STYLECOP_SETTINGS' => 'Settings.StyleCop') }
+        it { should == ["-set 'Settings.StyleCop'"] }
+      end
+
+      context 'from config file env variable' do
+        before { stub_const('ENV', 'STYLECOP_SETTINGS' => 'Settings.StyleCop') }
+        before { stub_const('ENV', 'PRONTO_STYLECOP_SETTINGS' => 'ProntoSettings.StyleCop') }
+        it { should == ["-set 'ProntoSettings.StyleCop'"] }
       end
     end
     describe '#parallel' do

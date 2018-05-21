@@ -28,7 +28,7 @@ module Pronto
     end
 
     def inspect(patch)
-      Parallel.map(definitions, in_processes: parallel) { |definition| run_stylecop(patch, definition) }
+      Parallel.map(definitions, in_processes: parallel) { |definition| stylecop(patch, definition) }
         .each_with_object(Set.new) { |violations, result| result.merge(violations) }
         .map do |violation|
         patch.added_lines
@@ -63,7 +63,7 @@ module Pronto
         settigns = ENV.fetch('PRONTO_STYLECOP_SETTINGS', nil)
         settigns = ENV.fetch('STYLECOP_SETTINGS', nil) if settigns.nil? # deprecation
         settigns = './Settings.StyleCop' if settigns.nil? && File.exist?('./Settings.StyleCop')
-        settigns
+        settigns.nil? ? nil : File.expand_path(settigns, '.')
       end
     end
 
@@ -79,15 +79,19 @@ module Pronto
       end
     end
 
-    def run_stylecop(patch, definition)
-      Dir.chdir(git_repo_path) do
-        Tempfile.create do |f|
-          file_path = patch.new_file_full_path.to_s
-          opt = stylecop_options(definition)
-          ret = `'#{STYLECOP_COMMAND}' #{opt.join(' ')} -cs '#{file_path}' -out '#{f.path}'`
-          raise ret unless stylecop_success?($?)
-          parse_stylecop_violation(f.path)
-        end
+    def stylecop(patch, definition)
+      @style_cop = {} if @style_cop.nil?
+      @style_cop[definition] ||= run_stylecop(definition)
+      source = relative_repo_path(patch.new_file_full_path.to_s)
+      @style_cop[definition].fetch(source, Set.new)
+    end
+
+    def run_stylecop(definition)
+      Tempfile.create do |f|
+        opt = stylecop_options(definition)
+        ret = `'#{STYLECOP_COMMAND}' #{opt.join(' ')} -r -cs '#{File.join(git_repo_path, '/*')}' -out '#{f.path}'`
+        raise ret unless stylecop_success?($?)
+        parse_stylecop_violation(f.path)
       end
     end
 
@@ -103,18 +107,24 @@ module Pronto
     end
 
     def parse_stylecop_violation(violation_file)
-      violations = Set.new
+      violations = {}
       File.open(violation_file) do |f|
         doc = REXML::Document.new(f)
         doc.elements.each('StyleCopViolations/Violation') do |violation|
           attributes = violation.attributes
+          source = relative_repo_path(attributes['Source'])
           line_number = attributes['LineNumber'].to_i
           rule_id = attributes['RuleId']
           message = violation.text.strip
-          violations.add(line_number: line_number, rule_id: rule_id, message: message)
+          violations[source] = Set.new unless violations.include?(source)
+          violations[source].add(line_number: line_number, rule_id: rule_id, message: message)
         end
       end
       violations
+    end
+
+    def relative_repo_path(path)
+      Pathname.new(path).relative_path_from(Pathname.new(git_repo_path)).to_s
     end
   end
 end

@@ -34,18 +34,18 @@ module Pronto
 
       context 'from config file env variable' do
         before { stub_const('ENV', 'STYLECOP_SETTINGS' => 'Settings.StyleCop') }
-        it { should == ["-set 'Settings.StyleCop'"] }
+        it { should == ["-set '#{File.join(Dir.pwd, 'Settings.StyleCop')}'"] }
       end
 
       context 'from config file env variable' do
         before { stub_const('ENV', 'PRONTO_STYLECOP_SETTINGS' => 'Settings.StyleCop') }
-        it { should == ["-set 'Settings.StyleCop'"] }
+        it { should == ["-set '#{File.join(Dir.pwd, 'Settings.StyleCop')}'"] }
       end
 
       context 'from config file env variable' do
         before { stub_const('ENV', 'STYLECOP_SETTINGS' => 'Settings.StyleCop') }
         before { stub_const('ENV', 'PRONTO_STYLECOP_SETTINGS' => 'ProntoSettings.StyleCop') }
-        it { should == ["-set 'ProntoSettings.StyleCop'"] }
+        it { should == ["-set '#{File.join(Dir.pwd, 'ProntoSettings.StyleCop')}'"] }
       end
     end
     describe '#parallel' do

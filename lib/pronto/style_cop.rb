@@ -12,6 +12,7 @@ module Pronto
     def initialize(patches, commit = nil)
       super
       @config.extend(StyleCopConfig)
+      settings
     end
 
     def run
